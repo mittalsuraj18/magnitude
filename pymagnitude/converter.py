@@ -14,6 +14,8 @@ from annoy import AnnoyIndex
 from collections import Counter
 from functools import partial
 from itertools import tee, chain
+from sklearn.preprocessing import normalize
+
 
 try:
     from itertools import imap
@@ -372,8 +374,10 @@ def convert(input_file_path, output_file_path=None,
         if i % 100000 == 0:
             db.execute("COMMIT;")
             db.execute("BEGIN;")
-        magnitude = np.linalg.norm(vector)
-        vector = vector / magnitude
+        #magnitude = np.linalg.norm(vector)
+        #vector = vector / magnitude
+        vector,magnitude = normalize(vector.reshape(1,-1),return_norm=True)
+        vector,magnitude = vector[0],magnitude[0]
         epsilon = np.random.choice(
             [-1.0 / (10**precision), 1.0 / (10**precision)], dimensions)
         vector = epsilon if np.isnan(vector).any() else vector
